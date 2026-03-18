@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  db:
+    container_name: ticketmanager_drtrade-db
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=TicketManager123!
+    ports:
+      - "1433:1433"
+    volumes:
+      - sql_data:/var/opt/mssql
+
+  api:
+    container_name: ticketmanager_drtrade-backend
+    build:
+      context: ./CoreAPI
+      dockerfile: Dockerfile
+    ports:
+      - "7002:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=db;Database=CoreAPIDb;User Id=sa;Password=TicketManager123!;TrustServerCertificate=True;
+      - JwtSettings__SecretKey=EstaEsUnaSuperClaveSecretaParaMiAPIDeTickets2026!
+    depends_on:
+      - db
+
+  frontend:
+    container_name: ticketmanager_drtrade-frontend
+    build:
+      context: ./frontend-tickets
+      dockerfile: Dockerfile
+      args:
+        - NEXT_PUBLIC_API_URL=http://localhost:7002/api
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:7002/api
+    depends_on:
+      - api
+
+volumes:
+  sql_data:
