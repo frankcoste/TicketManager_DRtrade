@@ -31,9 +31,19 @@ namespace CoreAPI.Controllers
 
                 var tickets = await _ticketService.GetTicketsAsync(userId, role, page, pageSize);
 
+                var ticketDtos = tickets.Tickets.Select(t => new TicketDto
+                {
+                    Id = t.Id,
+                    UserEmail = t.User.Email,
+                    Title = t.Title,
+                    Description = t.Description,
+                    Status = (int)t.Status,
+                    CreatedAt = t.CreatedAt
+                });
+
                 return Ok(new
                 {
-                    tickets = tickets.Tickets,
+                    tickets = ticketDtos,
                     totalCount = tickets.TotalCount
                 });
             }

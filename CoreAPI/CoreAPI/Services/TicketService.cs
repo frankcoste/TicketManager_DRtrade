@@ -37,7 +37,7 @@ namespace CoreAPI.Services
         public async Task<(IEnumerable<Ticket> Tickets, int TotalCount)> GetTicketsAsync(int userId, UserRole role, int page = 1, int pageSize = 10)
         {
 
-            IQueryable<Ticket> query = _context.Tickets;
+            IQueryable<Ticket> query = _context.Tickets.Include(t => t.User);
 
             if (role != UserRole.Admin)
             {
